@@ -1,30 +1,30 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
+import axios from 'axios';
 import {Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
+import {AuthService} from '../services';
+import {configuracion} from '../config/config';
 
 export class UsuarioController {
   constructor(
     @repository(UsuarioRepository)
-    public usuarioRepository : UsuarioRepository,
-  ) {}
+    public usuarioRepository: UsuarioRepository,
+    @service(AuthService)
+    public servicioAuth: AuthService
+  ) { }
 
   @post('/usuarios')
   @response(200, {
@@ -44,7 +44,55 @@ export class UsuarioController {
     })
     usuario: Omit<Usuario, 'id'>,
   ): Promise<Usuario> {
-    return this.usuarioRepository.create(usuario);
+
+    const clave = this.servicioAuth.GenerarClave();
+    const claveCifrada = this.servicioAuth.CifrarClave(clave);
+    usuario.password = claveCifrada;
+    let tipo = '';
+    let destino = '';
+    let servicioWeb = '';
+    tipo = configuracion.tipoComunicacion;
+
+    if (tipo == 'sms') {
+      destino = usuario.telefono;
+      servicioWeb = 'send_sms';
+    } else {
+      destino = usuario.correo;
+      servicioWeb = 'send_email';
+    }
+
+    // Notificamos al usuario por correo
+    let destino = usuario.correo;
+    // Notifiamos al usuario por telefono y cambiar la url por send_sms
+    // let destino = usuario.telefono;
+
+    let asunto = 'Registro de usuario en plataforma';
+    let contenido = `Hola, ${usuario.nombre} ${usuario.apellidos} su contraseña en el portal es: ${clave}`
+    // Hacems lasolicitud http
+    axios({
+      method: 'post',
+      url: configuracion.baseURL + servicioWeb, //Si quiero enviar por mensaje cambiar a send_sms
+
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      data: {
+        destino: destino,
+        asunto: asunto,
+        contenido: contenido
+      }
+    }).then((data) => {
+      console.log(data)
+    }).catch((err) => {
+      console.log(err)
+    })
+
+    let p = await this.usuarioRepository.create(usuario);
+
+    return p;
+
+    // return this.usuarioRepository.create(usuario);
   }
 
   @get('/usuarios/count')

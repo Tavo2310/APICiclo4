@@ -29,6 +29,8 @@
     "javascript",
     "typescript"
   ],
-  "editor.fontFamily": "Tahoma, Lucida Console, 'Courier New', monospace",
-  "editor.fontSize": 14
+  "editor.fontFamily": "Consolas, Consolas, 'Courier New', monospace",
+  "editor.fontSize": 14,
+  "terminal.integrated.localEchoStyle": "dim",
+  "terminal.integrated.cursorStyle": "block"
 }

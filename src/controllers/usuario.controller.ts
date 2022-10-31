@@ -13,10 +13,10 @@ import {
   response
 } from '@loopback/rest';
 import axios from 'axios';
+import {configuracion} from '../config/config';
 import {Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
 import {AuthService} from '../services';
-import {configuracion} from '../config/config';
 
 export class UsuarioController {
   constructor(

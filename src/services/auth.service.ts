@@ -25,7 +25,7 @@ export class AuthService {
     return claveCifrada;
   }
   //JWT metodo generar token
-  generarTokenJWT(usuario: Usuario) {
+  GenerarTokenJWT(usuario: Usuario) {
     let token = jwt.sign({
       data: {
         id: usuario.id,
@@ -37,7 +37,7 @@ export class AuthService {
     return token
   }
 
-  validarTokenJWT(token: string) {
+  ValidarTokenJWT(token: string) {
     try {
       let datos = jwt.verify(token, configuracion.claveJWT);
       return datos;

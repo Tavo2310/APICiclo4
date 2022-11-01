@@ -19,6 +19,8 @@ import {
 } from '@loopback/rest';
 import {Servicios} from '../models';
 import {ServiciosRepository} from '../repositories';
+import {authenticate} from '@loopback/authentication';
+@authenticate("admin")
 
 export class SevicioController {
   constructor(
